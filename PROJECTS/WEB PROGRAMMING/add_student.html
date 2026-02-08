@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Student</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+<body>
+
+<div class="navbar">
+    <h2>Add Student</h2>
+    <div>
+        <a href="index.html">Home</a>
+        <a href="view_students.php">View Records</a>
+    </div>
+</div>
+
+<div class="form-container">
+<form action="insert.php" method="POST" onsubmit="return validateForm()">
+
+<label>Roll Number:</label>
+<input type="number" name="roll_no" required>
+
+<label>Name:</label>
+<input type="text" name="name" required>
+
+<label>Email:</label>
+<input type="email" name="email" required>
+
+<label>Class:</label>
+<input type="text" name="class" required>
+
+<label>Major Subject 1 Marks:</label>
+<input type="number" id="m1" name="subject1" onkeyup="calculateTotal()" required>
+
+<label>Major Subject 2 Marks:</label>
+<input type="number" id="m2" name="subject2" onkeyup="calculateTotal()" required>
+
+<label>Major Subject 3 Marks:</label>
+<input type="number" id="m3" name="subject3" onkeyup="calculateTotal()" required>
+
+<label>Total:</label>
+<input type="number" id="total" name="total" readonly>
+
+<button type="submit">Submit</button>
+
+</form>
+</div>
+
+</body>
+</html>

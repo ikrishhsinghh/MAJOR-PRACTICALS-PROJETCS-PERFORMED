@@ -1,0 +1,98 @@
+# ==========================================================
+# STUDENT LEARNING & AI USAGE ANALYSIS REPORT
+# ==========================================================
+
+# 1. DATA LOADING & CLEANING
+data = read.csv(file.choose())
+
+# Cleaning numeric data (extracting first number from ranges like "4-7")
+data$Age = as.numeric(gsub("([0-9]+).*", "\\1", data[,3]))
+data$StudyHours = as.numeric(gsub("([0-9]+).*", "\\1", data[,6]))
+data$Sleep = as.numeric(gsub("([0-9]+).*", "\\1", data[,7]))
+data$AI_Efficiency = as.numeric(data[,16])
+data$AI_Stress = as.numeric(data[,17])
+data$Gender = as.factor(data[,4])
+
+cat("\n[1] DATA SUMMARY\n")
+print(summary(data[, c("Age", "StudyHours", "Sleep", "AI_Efficiency", "AI_Stress")]))
+
+# ==========================================================
+# 2. VISUAL REPORT (CHARTS)
+# ==========================================================
+# Set up a layout for multiple charts
+par(mfrow=c(2,2)) 
+
+# Chart 1: Distribution of AI Usage
+ai_usage_table = table(data[,11])
+barplot(ai_usage_table, col=c("tomato", "lightblue", "lightgreen"), 
+        main="Do Students Use AI?", xlab="Response", ylab="Count")
+
+# Chart 2: Sleep vs Study Hours
+plot(data$StudyHours, data$Sleep, pch=19, col="darkblue",
+     main="Sleep vs. Study Hours", xlab="Study Hours", ylab="Sleep Hours")
+abline(lm(data$Sleep ~ data$StudyHours), col="red", lwd=2) # Add trend line
+
+# Chart 3: Study Hours by Gender
+boxplot(StudyHours ~ Gender, data=data, col=c("pink", "skyblue"),
+        main="Study Hours: Male vs Female", xlab="Gender", ylab="Hours")
+
+# Chart 4: AI Impact (Efficiency vs Stress Reduction)
+plot(data$AI_Efficiency, data$AI_Stress, jitter=1, pch=18, col="darkgreen",
+     main="Efficiency vs Stress Reduction", xlab="Efficiency Scale", ylab="Stress Reduction Scale")
+
+# Reset layout
+par(mfrow=c(1,1))
+
+# ==========================================================
+# 3. PROBABILITY DISTRIBUTIONS
+# ==========================================================
+cat("\n[2] PROBABILITY ANALYSIS\n")
+
+# --- Binomial (AI Usage) ---
+ai_yes = sum(toupper(data[,11]) == "YES", na.rm=TRUE)
+n = nrow(data)
+p_val = ai_yes / n
+cat("Binomial: Probability of a student being an AI user:", round(p_val, 4), "\n")
+
+# --- Poisson (Average Study Hours) ---
+avg_study = mean(data$StudyHours, na.rm=TRUE)
+prob_5_hrs = dpois(5, avg_study)
+cat("Poisson: Prob. of a student studying exactly 5 hours:", round(prob_5_hrs, 4), "\n")
+
+# --- Normal (Age Distribution) ---
+avg_age = mean(data$Age, na.rm=TRUE)
+sd_age = sd(data$Age, na.rm=TRUE)
+cat("Normal: Mean Age is", round(avg_age, 2), "with StdDev", round(sd_age, 2), "\n")
+
+# ==========================================================
+# 4. HYPOTHESIS TESTING (COMMUNICATION)
+# ==========================================================
+cat("\n[3] HYPOTHESIS TESTING\n")
+
+# A. One Sample t-test: Is AI Efficiency significantly higher than neutral (3)?
+cat("\n--- Testing AI Efficiency (Hypothesis: Mean > 3) ---\n")
+t_eff = t.test(data$AI_Efficiency, mu=3)
+print(t_eff)
+
+# B. Two Sample t-test: Do Males and Females study the same amount?
+cat("\n--- Comparing Study Hours by Gender ---\n")
+t_gender = t.test(data$StudyHours ~ data$Gender)
+print(t_gender)
+
+# C. Chi-Square: Is AI use independent of Gender?
+cat("\n--- Testing Independence: Gender vs AI Usage ---\n")
+chisq_test = chisq.test(table(data$Gender, data[,11]))
+print(chisq_test)
+
+# D. Manual Z-test for Study Hours (Target = 10 hours)
+cat("\n--- Manual Z-test (Study Hours vs 10hr Target) ---\n")
+z_stat = (mean(data$StudyHours, na.rm=T) - 10) / (sd(data$StudyHours, na.rm=T) / sqrt(n))
+p_z = 2 * pnorm(-abs(z_stat))
+cat("Z-score:", z_stat, "| P-value:", p_z, "\n")
+
+# E. ANOVA: Does Study Hours vary by Academic Program?
+cat("\n--- One-Way ANOVA: Study Hours by Program ---\n")
+anova_res = aov(StudyHours ~ as.factor(data[,5]), data=data)
+print(summary(anova_res))
+
+cat("\n================ END OF REPORT ================\n")

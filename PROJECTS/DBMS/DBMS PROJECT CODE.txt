@@ -1,0 +1,78 @@
+
+CREATE TABLE ServiceProvider1400 (
+    Provider_ID NUMBER PRIMARY KEY,
+    Provider_Name VARCHAR(15),
+    Contact_Number VARCHAR(15)
+);
+
+CREATE TABLE Customer1400 (
+    Customer_ID NUMBER PRIMARY KEY,
+    Name VARCHAR(50),
+    Mobile_Number VARCHAR(15),
+    Email VARCHAR(50),
+    City VARCHAR(30)
+);
+
+
+CREATE TABLE RechargePlan1400 (
+    Plan_ID NUMBER PRIMARY KEY,
+    Provider_ID NUMBER,
+    Plan_Name VARCHAR(50),
+    Validity VARCHAR(15),
+    Price NUMBER(10,2),
+    Data_Offer VARCHAR(30),
+    FOREIGN KEY (Provider_ID) REFERENCES ServiceProvider1400(Provider_ID)
+);
+
+
+CREATE TABLE RechargeTransaction1400 (
+    Transaction_ID NUMBER PRIMARY KEY,
+    Customer_ID NUMBER,
+    Plan_ID NUMBER,
+    Recharge_Date DATE,
+    Payment_Mode VARCHAR(15),
+    Status VARCHAR(15),
+    FOREIGN KEY (Customer_ID) REFERENCES Customer1400(Customer_ID),
+    FOREIGN KEY (Plan_ID) REFERENCES RechargePlan1400(Plan_ID)
+);
+
+
+INSERT INTO ServiceProvider1400 VALUES (1, 'Jio', '1800100100');
+INSERT INTO ServiceProvider1400 VALUES (2, 'Airtel', '1800100200');
+
+
+INSERT INTO Customer1400 VALUES (1, 'Rahul Sharma', '9876543210', 'rahul@gmail.com', 'Delhi');
+INSERT INTO Customer1400 VALUES (2, 'Priya Verma', '9876500001', 'priya@gmail.com', 'Mumbai');
+INSERT INTO Customer1400 VALUES (3, 'Amit Kumar', '9876500002', 'amitk@gmail.com', 'Kolkata');
+INSERT INTO Customer1400 VALUES (4, 'Sneha Gupta', '9876500003', 'sneha@gmail.com', 'Bangalore');
+INSERT INTO Customer1400 VALUES (5, 'Rohit Mehta', '9876500004', 'rohit@gmail.com', 'Hyderabad');
+INSERT INTO Customer1400 VALUES (6, 'Anita Singh', '9876500005', 'anita@gmail.com', 'Chennai');
+
+
+INSERT INTO RechargePlan1400 VALUES (101, 1, 'Jio 1.5GB/day', '28 Days', 249.00, '1.5GB/day');
+INSERT INTO RechargePlan1400 VALUES (102, 2, 'Airtel 2GB/day', '28 Days', 299.00, '2GB/day');
+
+
+INSERT INTO RechargeTransaction1400 VALUES (1001, 1, 101, TO_DATE('2025-08-01', 'YYYY-MM-DD'), 'UPI', 'Success');
+INSERT INTO RechargeTransaction1400 VALUES (1002, 2, 102, TO_DATE('2025-08-02', 'YYYY-MM-DD'), 'Card', 'Pending');
+INSERT INTO RechargeTransaction1400 VALUES (1003, 3, 101, TO_DATE('2025-08-03', 'YYYY-MM-DD'), 'NetBanking', 'Success');
+INSERT INTO RechargeTransaction1400 VALUES (1004, 4, 102, TO_DATE('2025-08-04', 'YYYY-MM-DD'), 'Wallet', 'Failed');
+INSERT INTO RechargeTransaction1400 VALUES (1005, 5, 101, TO_DATE('2025-08-05', 'YYYY-MM-DD'), 'Cash', 'Success');
+INSERT INTO RechargeTransaction1400 VALUES (1006, 6, 102, TO_DATE('2025-08-06', 'YYYY-MM-DD'), 'UPI', 'Success');
+
+SELECT Plan_Name, Price, Validity, Data_Offer
+FROM RechargePlan1400 RP
+JOIN ServiceProvider1400 SP ON RP.Provider_ID = SP.Provider_ID
+WHERE SP.Provider_Name = 'Jio';
+
+SELECT T.Transaction_ID, P.Plan_Name, T.Recharge_Date, T.Payment_Mode
+FROM RechargeTransaction1400 T
+JOIN RechargePlan1400 P ON T.Plan_ID = P.Plan_ID
+WHERE T.Customer_ID = 1 AND T.Status = 'Success';
+
+SELECT T.Transaction_ID, C.Name AS Customer_Name, C.Mobile_Number, SP.Provider_Name, P.Plan_Name, P.Price, P.Validity, T.Recharge_Date, T.Payment_Mode, T.Status
+FROM RechargeTransaction1400 T
+JOIN Customer1400 C ON T.Customer_ID = C.Customer_ID
+JOIN RechargePlan1400 P ON T.Plan_ID = P.Plan_ID
+JOIN ServiceProvider1400 SP ON P.Provider_ID = SP.Provider_ID
+ORDER BY T.Recharge_Date DESC;
